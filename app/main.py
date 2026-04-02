@@ -25,3 +25,13 @@ def get_note(note_id: int):
         if note["id"] == note_id:
             return note
     return {"error" : "Note not found"}
+
+@app.post("/notes")
+def create_note(note: dict):
+    new_note = {
+        "id" : len(notes) + 1,
+        "title" : note["title"],
+        "done" : note.get("done", False)
+    }
+    notes.append(new_note)
+    return new_note
