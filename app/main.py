@@ -35,3 +35,12 @@ def create_note(note: dict):
     }
     notes.append(new_note)
     return new_note
+
+@app.put("/notes/{note_id}")
+def update_note(note_id: int, updated_note: dict):
+    for note in notes:
+        if note["id"] == note_id:
+            note["title"] = updated_note.get("title", note["title"])
+            note["done"] = updated_note.get("done", note["done"])
+            return note
+    return {"error" : "Note not found"}
