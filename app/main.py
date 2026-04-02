@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 app = FastAPI()
@@ -35,8 +35,7 @@ def get_note(note_id: int):
     for note in notes:
         if note["id"] == note_id:
             return note
-    return {"error": "Note not found"}
-
+    raise HTTPException(status_code=404, detail="Note not found")
 
 @app.post("/notes")
 def create_note(note: NoteCreate):
@@ -56,7 +55,7 @@ def update_note(note_id: int, updated_note: NoteCreate):
             note["title"] = updated_note.title
             note["done"] = updated_note.done
             return note
-    return {"error": "Note not found"}
+    raise HTTPException(status_code=404, detail="Note not found")
 
 
 @app.delete("/notes/{note_id}")
@@ -65,4 +64,4 @@ def delete_note(note_id: int):
         if note["id"] == note_id:
             deleted_note = notes.pop(index)
             return deleted_note
-    return {"error": "Note not found"}
+    raise HTTPException(status_code=404, detail="Note not found")
