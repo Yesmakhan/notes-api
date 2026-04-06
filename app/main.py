@@ -1,21 +1,9 @@
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+
+from app.schemas import NoteCreate, NoteUpdate, NoteResponse
 
 app = FastAPI()
 
-
-class NoteCreate(BaseModel):
-    title: str
-    done: bool = False
-
-class NoteUpdate(BaseModel):
-    title: str | None = None
-    done: bool | None = None
-
-class NoteResponse(BaseModel):
-    id: int
-    title: str
-    done: bool
 
 notes = [
     {"id": 1, "title": "Learn FastAPI", "done": False},
