@@ -12,6 +12,11 @@ class NoteUpdate(BaseModel):
     title: str | None = None
     done: bool | None = None
 
+class NoteResponse(BaseModel):
+    id: int
+    title: str
+    done: bool
+
 notes = [
     {"id": 1, "title": "Learn FastAPI", "done": False},
     {"id": 2, "title": "Learn Git", "done": False},
@@ -28,19 +33,19 @@ def health():
     return {"status": "ok"}
 
 
-@app.get("/notes")
+@app.get("/notes", response_model=list[NoteResponse])
 def get_notes():
     return notes
 
 
-@app.get("/notes/{note_id}")
+@app.get("/notes/{note_id}", response_model=NoteResponse)
 def get_note(note_id: int):
     for note in notes:
         if note["id"] == note_id:
             return note
     raise HTTPException(status_code=404, detail="Note not found")
 
-@app.post("/notes", status_code=201)
+@app.post("/notes", status_code=201, response_model=NoteResponse)
 def create_note(note: NoteCreate):
     new_note = {
         "id": len(notes) + 1,
@@ -51,7 +56,7 @@ def create_note(note: NoteCreate):
     return new_note
 
 
-@app.put("/notes/{note_id}")
+@app.put("/notes/{note_id}", response_model=NoteResponse)
 def update_note(note_id: int, updated_note: NoteUpdate):
     for note in notes:
         if note["id"] == note_id:
@@ -63,7 +68,7 @@ def update_note(note_id: int, updated_note: NoteUpdate):
     raise HTTPException(status_code=404, detail="Note not found")
 
 
-@app.delete("/notes/{note_id}")
+@app.delete("/notes/{note_id}", response_model=NoteResponse)
 def delete_note(note_id: int):
     for index, note in enumerate(notes):
         if note["id"] == note_id:
