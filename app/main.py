@@ -8,6 +8,9 @@ class NoteCreate(BaseModel):
     title: str
     done: bool = False
 
+class NoteUpdate(BaseModel):
+    title: str | None = None
+    done: bool | None = None
 
 notes = [
     {"id": 1, "title": "Learn FastAPI", "done": False},
@@ -37,7 +40,7 @@ def get_note(note_id: int):
             return note
     raise HTTPException(status_code=404, detail="Note not found")
 
-@app.post("/notes")
+@app.post("/notes", status_code=201)
 def create_note(note: NoteCreate):
     new_note = {
         "id": len(notes) + 1,
@@ -49,11 +52,13 @@ def create_note(note: NoteCreate):
 
 
 @app.put("/notes/{note_id}")
-def update_note(note_id: int, updated_note: NoteCreate):
+def update_note(note_id: int, updated_note: NoteUpdate):
     for note in notes:
         if note["id"] == note_id:
-            note["title"] = updated_note.title
-            note["done"] = updated_note.done
+            if updated_note.title is not None:
+                note["title"] = updated_note.title
+            if updated_note.done is not None:
+                note["done"] = updated_note.done
             return note
     raise HTTPException(status_code=404, detail="Note not found")
 
