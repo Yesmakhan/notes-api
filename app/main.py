@@ -1,14 +1,9 @@
 from fastapi import FastAPI, HTTPException
 
 from app.schemas import NoteCreate, NoteUpdate, NoteResponse
+from app.storage import notes
 
 app = FastAPI()
-
-
-notes = [
-    {"id": 1, "title": "Learn FastAPI", "done": False},
-    {"id": 2, "title": "Learn Git", "done": False},
-]
 
 
 @app.get("/")
