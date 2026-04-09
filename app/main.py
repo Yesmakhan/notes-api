@@ -27,7 +27,8 @@ def about():
         "project": "Notes API",
         "storage": "file",
         "version": 1,
-        "notes_count": len(get_all_notes())
+        "notes_count": len(get_all_notes()),
+        "endpoints_count": 8
     }
 
 

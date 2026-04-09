@@ -18,3 +18,4 @@ class AboutResponse(BaseModel):
     storage: str
     version: int
     notes_count: int
+    endpoints_count: int

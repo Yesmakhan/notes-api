@@ -3,5 +3,20 @@
     "id": 1,
     "title": "check",
     "done": true
+  },
+  {
+    "id": 2,
+    "title": "Test note",
+    "done": false
+  },
+  {
+    "id": 3,
+    "title": "Test note",
+    "done": false
+  },
+  {
+    "id": 4,
+    "title": "Another test note",
+    "done": false
   }
 ]
