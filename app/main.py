@@ -1,7 +1,13 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 
 from app.schemas import NoteCreate, NoteUpdate, NoteResponse
-from app.storage import notes
+from app.services import (
+    get_all_notes,
+    get_note_by_id,
+    create_new_note,
+    update_existing_note,
+    delete_existing_note,
+)
 
 app = FastAPI()
 
@@ -15,46 +21,35 @@ def root():
 def health():
     return {"status": "ok"}
 
+@app.get("/about")
+def about():
+    return {
+        "project": "Notes API",
+        "storage": "file",
+        "version": 1
+    }
+
 
 @app.get("/notes", response_model=list[NoteResponse])
 def get_notes():
-    return notes
+    return get_all_notes()
 
 
 @app.get("/notes/{note_id}", response_model=NoteResponse)
 def get_note(note_id: int):
-    for note in notes:
-        if note["id"] == note_id:
-            return note
-    raise HTTPException(status_code=404, detail="Note not found")
+    return get_note_by_id(note_id)
+
 
 @app.post("/notes", status_code=201, response_model=NoteResponse)
 def create_note(note: NoteCreate):
-    new_note = {
-        "id": len(notes) + 1,
-        "title": note.title,
-        "done": note.done
-    }
-    notes.append(new_note)
-    return new_note
+    return create_new_note(note)
 
 
 @app.put("/notes/{note_id}", response_model=NoteResponse)
 def update_note(note_id: int, updated_note: NoteUpdate):
-    for note in notes:
-        if note["id"] == note_id:
-            if updated_note.title is not None:
-                note["title"] = updated_note.title
-            if updated_note.done is not None:
-                note["done"] = updated_note.done
-            return note
-    raise HTTPException(status_code=404, detail="Note not found")
+    return update_existing_note(note_id, updated_note)
 
 
 @app.delete("/notes/{note_id}", response_model=NoteResponse)
 def delete_note(note_id: int):
-    for index, note in enumerate(notes):
-        if note["id"] == note_id:
-            deleted_note = notes.pop(index)
-            return deleted_note
-    raise HTTPException(status_code=404, detail="Note not found")
+    return delete_existing_note(note_id)
