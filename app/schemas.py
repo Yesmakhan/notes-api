@@ -12,3 +12,9 @@ class NoteResponse(BaseModel):
     id: int
     title: str
     done: bool
+
+class AboutResponse(BaseModel):
+    project: str
+    storage: str
+    version: int
+    notes_count: int

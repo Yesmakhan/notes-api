@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.schemas import NoteCreate, NoteUpdate, NoteResponse
+from app.schemas import NoteCreate, NoteUpdate, NoteResponse, AboutResponse
 from app.services import (
     get_all_notes,
     get_note_by_id,
@@ -21,7 +21,7 @@ def root():
 def health():
     return {"status": "ok"}
 
-@app.get("/about")
+@app.get("/about", response_model=AboutResponse)
 def about():
     return {
         "project": "Notes API",
