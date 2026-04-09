@@ -26,7 +26,8 @@ def about():
     return {
         "project": "Notes API",
         "storage": "file",
-        "version": 1
+        "version": 1,
+        "notes_count": len(get_all_notes())
     }
 
 
