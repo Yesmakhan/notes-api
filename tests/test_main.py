@@ -67,3 +67,50 @@ def test_get_note_by_id():
 
     assert data["title"] == "Another test note"
     assert data == post_data
+
+def test_update_existing_note():
+    original_note = {
+        "title": "Original text"
+    }
+
+    new_note = {
+        "title": "Updated test note",
+        "done": True
+    }
+
+    post_response = client.post("/notes", json=original_note)
+    assert post_response.status_code == 201
+
+    post_data = post_response.json()
+    
+    by_id_response = client.put(f"/notes/{post_data['id']}", json=new_note)
+    assert by_id_response.status_code == 200
+
+    data = by_id_response.json()
+
+    assert data["title"] == new_note["title"]
+    assert data["done"] == new_note["done"]
+    assert data["id"] == post_data["id"]
+
+def test_delete_note():
+    new_note = {
+        "title": "Deleted test note",
+        "done": True
+    }
+
+    post_response = client.post("/notes", json=new_note)
+    assert post_response.status_code == 201
+
+    post_data = post_response.json()
+    
+    by_id_response = client.delete(f"/notes/{post_data['id']}")
+    assert by_id_response.status_code == 200
+
+    data = by_id_response.json()
+
+    assert data["title"] == new_note["title"]
+    assert data["done"] == new_note["done"]
+    assert data["id"] == post_data["id"]
+
+    get_response = client.get(f"/notes/{post_data['id']}")
+    assert get_response.status_code == 404

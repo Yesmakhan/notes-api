@@ -18,5 +18,20 @@
     "id": 4,
     "title": "Another test note",
     "done": false
+  },
+  {
+    "id": 5,
+    "title": "Test note",
+    "done": false
+  },
+  {
+    "id": 6,
+    "title": "Another test note",
+    "done": false
+  },
+  {
+    "id": 7,
+    "title": "Updated test note",
+    "done": true
   }
 ]
