@@ -33,8 +33,8 @@ def about():
 
 
 @app.get("/notes", response_model=list[NoteResponse])
-def get_notes():
-    return get_all_notes()
+def get_notes(done: bool | None = None, search: str | None = None):
+    return get_all_notes(done, search)
 
 
 @app.get("/notes/{note_id}", response_model=NoteResponse)

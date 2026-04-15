@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 from app.main import app
 from app.services import get_all_notes
-from app.storage import notes, save_notes
+from app.storage import save_notes
 
 client = TestClient(app)
 
@@ -114,3 +114,66 @@ def test_delete_note():
 
     get_response = client.get(f"/notes/{post_data['id']}")
     assert get_response.status_code == 404
+
+def test_get_notes_with_search():
+    client.post("/notes", json={"title": "Learn FastAPI", "done": True})
+    client.post("/notes", json={"title": "Fast search example", "done": False})
+    client.post("/notes", json={"title": "Docker basics", "done": False})
+
+
+    search_check_response = client.get("/notes?search=fast")
+    assert search_check_response.status_code == 200
+
+    data = search_check_response.json()
+    assert isinstance(data, list)
+    
+    for note in data:
+        assert "fast" in note["title"].lower()
+
+def test_get_notes_done_true():
+    client.post("/notes", json={"title": "Learn FastAPI", "done": True})
+    client.post("/notes", json={"title": "Fast search example", "done": False})
+    client.post("/notes", json={"title": "Docker basics", "done": False})
+
+
+    done_check_response = client.get("/notes?done=true")
+    assert done_check_response.status_code == 200
+    
+    data = done_check_response.json()
+    assert isinstance(data, list)
+    assert len(data) > 0
+
+    for note in data:
+        assert note["done"] is True
+
+def test_get_notes_with_done_true_and_search():
+    client.post("/notes", json={"title": "Learn FastAPI", "done": True})
+    client.post("/notes", json={"title": "Fast search example", "done": False})
+    client.post("/notes", json={"title": "Docker basics", "done": False})
+
+
+    mixed_check_response = client.get("/notes?done=true&search=fast")
+    assert mixed_check_response.status_code == 200
+
+    data = mixed_check_response.json()
+    assert isinstance(data, list)
+    
+    for note in data:
+        assert note["done"] is True
+        assert "fast" in note["title"].lower()
+
+def test_get_notes_with_done_false_and_search():
+    client.post("/notes", json={"title": "Learn FastAPI", "done": True})
+    client.post("/notes", json={"title": "Fast search example", "done": False})
+    client.post("/notes", json={"title": "Docker basics", "done": False})
+
+
+    mixed_check_response = client.get("/notes?done=false&search=fast")
+    assert mixed_check_response.status_code == 200
+
+    data = mixed_check_response.json()
+    assert isinstance(data, list)
+
+    for note in data:
+        assert note["done"] is False
+        assert "fast" in note["title"].lower()
