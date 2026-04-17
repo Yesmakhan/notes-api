@@ -1,70 +1,40 @@
-from fastapi import HTTPException
-from pathlib import Path
-from app.storage import save_notes, load_notes
+from sqlalchemy.orm import Session
+from app import models, schemas
 
+def get_all_notes(db: Session, done: bool | None = None, search: str | None = None):
+    query = db.query(models.Note)
+    
+    if done is not None:
+        query = query.filter(models.Note.done == done)
+    if search:
+        query = query.filter(models.Note.title.ilike(f"%{search}%"))
+        
+    return query.all()
 
-def get_all_notes(done: bool | None = None, search: str | None = None, data_file: Path | None = None):
-    new_notes = []
-    notes = load_notes(data_file)
-    if done is None:
-        if search is None:
-            return notes
-        else:
-            for note in notes:
-                if search.lower() in note["title"].lower():
-                    new_notes.append(note)
-            return new_notes
-    else:
-        if search is None:
-            for note in notes:
-                if note["done"] is done:
-                    new_notes.append(note)
-            return new_notes
-        else:
-            for note in notes:
-                if note["done"] is done and search.lower() in note["title"].lower():
-                    new_notes.append(note)
-            return new_notes
+def get_note_by_id(db: Session, note_id: int):
+    return db.query(models.Note).filter(models.Note.id == note_id).first()
 
+def create_new_note(db: Session, note: schemas.NoteCreate):
+    db_note = models.Note(title=note.title, done=note.done)
+    db.add(db_note)
+    db.commit()
+    db.refresh(db_note)
+    return db_note
 
-def get_note_by_id(note_id: int, data_file: Path | None = None):
-    notes = load_notes(data_file)
-    for note in notes:
-        if note["id"] == note_id:
-            return note
-    raise HTTPException(status_code=404, detail="Note not found")
+def update_existing_note(db: Session, note_id: int, updated_note: schemas.NoteUpdate):
+    db_note = get_note_by_id(db, note_id)
+    if db_note:
+        if updated_note.title is not None:
+            db_note.title = updated_note.title
+        if updated_note.done is not None:
+            db_note.done = updated_note.done
+        db.commit()
+        db.refresh(db_note)
+    return db_note
 
-
-def create_new_note(note, data_file: Path | None = None):
-    notes = load_notes(data_file)
-    new_note = {
-        "id": len(notes) + 1,
-        "title": note.title,
-        "done": note.done
-    }
-    notes.append(new_note)
-    save_notes(notes, data_file)
-    return new_note
-
-
-def update_existing_note(note_id: int, updated_note, data_file: Path | None = None):
-    notes = load_notes(data_file)
-    for note in notes:
-        if note["id"] == note_id:
-            if updated_note.title is not None:
-                note["title"] = updated_note.title
-            if updated_note.done is not None:
-                note["done"] = updated_note.done
-            save_notes(notes, data_file)
-            return note
-    raise HTTPException(status_code=404, detail="Note not found")
-
-
-def delete_existing_note(note_id: int, data_file: Path | None = None):
-    notes = load_notes(data_file)
-    for index, note in enumerate(notes):
-        if note["id"] == note_id:
-            deleted_note = notes.pop(index)
-            save_notes(notes, data_file)
-            return deleted_note
-    raise HTTPException(status_code=404, detail="Note not found")
+def delete_existing_note(db: Session, note_id: int):
+    db_note = get_note_by_id(db, note_id)
+    if db_note:
+        db.delete(db_note)
+        db.commit()
+    return db_note
